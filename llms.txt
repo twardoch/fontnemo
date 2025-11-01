@@ -1,6 +1,5 @@
 Project Structure:
 📁 fontnemo
-├── 📁 examples
 ├── 📁 htmlcov
 ├── 📁 src
 │   └── 📁 fontnemo
@@ -5016,7 +5015,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
+    "pytest-cov>=6.0.0",
     "mypy>=1.8.0",
 ]
 
