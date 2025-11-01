@@ -7,6 +7,7 @@ All notable changes to fontnemo are documented here. The format is based on [Kee
 ### Changed
 - **timestamp command**: Default separator changed from `" "` to `" tX"`
 - **timestamp command**: Added `--replace_timestamp` parameter (default: True) to replace old timestamps instead of accumulating them
+- **All commands**: Now output in consistent format `path:family_name` after modification (matching `view --long` format)
 
 ## [0.1.0] - 2025-11-01
 
