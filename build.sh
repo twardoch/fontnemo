@@ -15,6 +15,7 @@ fi
 
 uvx codetoprompt --compress --output "./llms.txt" --respect-gitignore --cxml --exclude "$EXCLUDE" "."
 
+uvx hatch clean;
 gitnextver .;
 uvx hatch build;
 uv publish;
