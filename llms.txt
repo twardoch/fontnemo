@@ -5107,6 +5107,7 @@ class FontNemoCLI:
         input_path: str,
         new_family: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Set new font family name."""
     def n((
@@ -5114,6 +5115,7 @@ class FontNemoCLI:
         input_path: str,
         new_family: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Alias for new command."""
     def replace((
@@ -5122,6 +5124,7 @@ class FontNemoCLI:
         find: str,
         replace: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Find and replace in font family name."""
     def r((
@@ -5130,6 +5133,7 @@ class FontNemoCLI:
         find: str,
         replace: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Alias for replace command."""
     def suffix((
@@ -5137,6 +5141,7 @@ class FontNemoCLI:
         input_path: str,
         suffix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Append suffix to font family name."""
     def s((
@@ -5144,6 +5149,7 @@ class FontNemoCLI:
         input_path: str,
         suffix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Alias for suffix command."""
     def prefix((
@@ -5151,6 +5157,7 @@ class FontNemoCLI:
         input_path: str,
         prefix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Prepend prefix to font family name."""
     def p((
@@ -5158,6 +5165,7 @@ class FontNemoCLI:
         input_path: str,
         prefix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Alias for prefix command."""
     def timestamp((
@@ -5166,6 +5174,7 @@ class FontNemoCLI:
         separator: str = " tX",
         replace_timestamp: bool = True,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Append timestamp suffix to font family name."""
     def t((
@@ -5174,6 +5183,7 @@ class FontNemoCLI:
         separator: str = " tX",
         replace_timestamp: bool = True,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
         """Alias for timestamp command."""
 
@@ -5191,6 +5201,7 @@ def new((
         input_path: str,
         new_family: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Set new font family name."""
 
@@ -5199,6 +5210,7 @@ def n((
         input_path: str,
         new_family: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Alias for new command."""
 
@@ -5208,6 +5220,7 @@ def replace((
         find: str,
         replace: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Find and replace in font family name."""
 
@@ -5217,6 +5230,7 @@ def r((
         find: str,
         replace: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Alias for replace command."""
 
@@ -5225,6 +5239,7 @@ def suffix((
         input_path: str,
         suffix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Append suffix to font family name."""
 
@@ -5233,6 +5248,7 @@ def s((
         input_path: str,
         suffix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Alias for suffix command."""
 
@@ -5241,6 +5257,7 @@ def prefix((
         input_path: str,
         prefix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Prepend prefix to font family name."""
 
@@ -5249,6 +5266,7 @@ def p((
         input_path: str,
         prefix: str,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Alias for prefix command."""
 
@@ -5258,6 +5276,7 @@ def timestamp((
         separator: str = " tX",
         replace_timestamp: bool = True,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Append timestamp suffix to font family name."""
 
@@ -5267,6 +5286,7 @@ def t((
         separator: str = " tX",
         replace_timestamp: bool = True,
         output_path: str = "0",
+        long: bool = False,
     )) -> None:
     """Alias for timestamp command."""
 

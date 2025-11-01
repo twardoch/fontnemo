@@ -63,6 +63,7 @@ class FontNemoCLI:
         input_path: str,
         new_family: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Set new font family name.
 
@@ -74,6 +75,7 @@ class FontNemoCLI:
                 - "1": Backup original, then replace
                 - "2": Save with timestamp suffix
                 - path string: Save to specific path
+            long: If True, show path prefix in output
 
         Examples:
             fontnemo new font.ttf --new_family="My New Font"
@@ -96,11 +98,15 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            # Print final result in view format
+            # Print final result
             result_handler = FontNameHandler(final_path)
             final_family_name = result_handler.read_family_name()
             result_handler.close()
-            print(f"{final_path}:{final_family_name}")
+
+            if long:
+                print(f"{final_path}:{final_family_name}")
+            else:
+                print(final_family_name)
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -111,12 +117,14 @@ class FontNemoCLI:
         input_path: str,
         new_family: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Alias for new command."""
         return self.new(
             input_path=input_path,
             new_family=new_family,
             output_path=output_path,
+            long=long,
         )
 
     def replace(
@@ -125,6 +133,7 @@ class FontNemoCLI:
         find: str,
         replace: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Find and replace in font family name.
 
@@ -133,6 +142,7 @@ class FontNemoCLI:
             find: String to find
             replace: String to replace with
             output_path: Output mode (see 'new' command)
+            long: If True, show path prefix in output
 
         Examples:
             fontnemo replace font.ttf --find="Old" --replace="New"
@@ -164,11 +174,15 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            # Print final result in view format
+            # Print final result
             result_handler = FontNameHandler(final_path)
             final_family_name = result_handler.read_family_name()
             result_handler.close()
-            print(f"{final_path}:{final_family_name}")
+
+            if long:
+                print(f"{final_path}:{final_family_name}")
+            else:
+                print(final_family_name)
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -180,6 +194,7 @@ class FontNemoCLI:
         find: str,
         replace: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Alias for replace command."""
         return self.replace(
@@ -187,6 +202,7 @@ class FontNemoCLI:
             find=find,
             replace=replace,
             output_path=output_path,
+            long=long,
         )
 
     def suffix(
@@ -194,6 +210,7 @@ class FontNemoCLI:
         input_path: str,
         suffix: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Append suffix to font family name.
 
@@ -201,6 +218,7 @@ class FontNemoCLI:
             input_path: Input font file
             suffix: Suffix to append
             output_path: Output mode (see 'new' command)
+            long: If True, show path prefix in output
 
         Examples:
             fontnemo suffix font.ttf --suffix=" Beta"
@@ -228,11 +246,15 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            # Print final result in view format
+            # Print final result
             result_handler = FontNameHandler(final_path)
             final_family_name = result_handler.read_family_name()
             result_handler.close()
-            print(f"{final_path}:{final_family_name}")
+
+            if long:
+                print(f"{final_path}:{final_family_name}")
+            else:
+                print(final_family_name)
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -243,12 +265,14 @@ class FontNemoCLI:
         input_path: str,
         suffix: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Alias for suffix command."""
         return self.suffix(
             input_path=input_path,
             suffix=suffix,
             output_path=output_path,
+            long=long,
         )
 
     def prefix(
@@ -256,6 +280,7 @@ class FontNemoCLI:
         input_path: str,
         prefix: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Prepend prefix to font family name.
 
@@ -263,6 +288,7 @@ class FontNemoCLI:
             input_path: Input font file
             prefix: Prefix to prepend
             output_path: Output mode (see 'new' command)
+            long: If True, show path prefix in output
 
         Examples:
             fontnemo prefix font.ttf --prefix="Beta "
@@ -290,11 +316,15 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            # Print final result in view format
+            # Print final result
             result_handler = FontNameHandler(final_path)
             final_family_name = result_handler.read_family_name()
             result_handler.close()
-            print(f"{final_path}:{final_family_name}")
+
+            if long:
+                print(f"{final_path}:{final_family_name}")
+            else:
+                print(final_family_name)
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -305,12 +335,14 @@ class FontNemoCLI:
         input_path: str,
         prefix: str,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Alias for prefix command."""
         return self.prefix(
             input_path=input_path,
             prefix=prefix,
             output_path=output_path,
+            long=long,
         )
 
     def timestamp(
@@ -319,6 +351,7 @@ class FontNemoCLI:
         separator: str = " tX",
         replace_timestamp: bool = True,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Append timestamp suffix to font family name.
 
@@ -327,6 +360,7 @@ class FontNemoCLI:
             separator: Separator before timestamp (default: " tX")
             replace_timestamp: Remove old timestamp before adding new (default: True)
             output_path: Output mode (see 'new' command)
+            long: If True, show path prefix in output
 
         Examples:
             fontnemo timestamp font.ttf
@@ -369,11 +403,15 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            # Print final result in view format
+            # Print final result
             result_handler = FontNameHandler(final_path)
             final_family_name = result_handler.read_family_name()
             result_handler.close()
-            print(f"{final_path}:{final_family_name}")
+
+            if long:
+                print(f"{final_path}:{final_family_name}")
+            else:
+                print(final_family_name)
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -385,6 +423,7 @@ class FontNemoCLI:
         separator: str = " tX",
         replace_timestamp: bool = True,
         output_path: str = "0",
+        long: bool = False,
     ) -> None:
         """Alias for timestamp command."""
         return self.timestamp(
@@ -392,6 +431,7 @@ class FontNemoCLI:
             separator=separator,
             replace_timestamp=replace_timestamp,
             output_path=output_path,
+            long=long,
         )
 
 
