@@ -881,6 +881,7 @@ vendors
 venv.bak/
 venv/
 wheels/
+.DS_Store
 </document_content>
 </document>
 
@@ -4569,6 +4570,7 @@ When you write prose (like documentation or marketing or even your own commentar
 <document_content>
 # fontnemo
 
+
 Python CLI tool that uses `fire` and `fonttools`, which modifies the font family portion only. 
 
 ## Name strings operation
@@ -4710,6 +4712,9 @@ Specialized `suffix` operation in which we build suffix as follows:
 - then it’s the timestamp build according to TIME_RULE 
 
 ---
+
+- Copyright 2025 Adam Twardoch
+- License: Apache 2.0
 </document_content>
 </document>
 
@@ -5199,6 +5204,7 @@ fi
 
 uvx codetoprompt --compress --output "./llms.txt" --respect-gitignore --cxml --exclude "$EXCLUDE" "."
 
+uvx hatch clean;
 gitnextver .;
 uvx hatch build;
 uv publish;
