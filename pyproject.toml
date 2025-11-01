@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fontnemo"
+dynamic = ["version"]
+description = "CLI tool for modifying font family names in OpenType/TrueType fonts"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Adam Twardoch" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fonttools>=4.50.0",
+    "fire>=0.6.0",
+    "loguru>=0.7.0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Text Processing :: Fonts",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.8.0",
+]
+
+[project.scripts]
+fontnemo = "fontnemo.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/twardoch/fontnemo"
+Repository = "https://github.com/twardoch/fontnemo"
+Issues = "https://github.com/twardoch/fontnemo/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/fontnemo/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fontnemo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=fontnemo --cov-report=term-missing --cov-report=html --cov-fail-under=80"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
