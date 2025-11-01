@@ -1,5 +1,6 @@
 # fontnemo
 
+
 Python CLI tool that uses `fire` and `fonttools`, which modifies the font family portion only. 
 
 ## Name strings operation
@@ -142,3 +143,5 @@ Specialized `suffix` operation in which we build suffix as follows:
 
 ---
 
+- Copyright 2025 Adam Twardoch
+- License: Apache 2.0
