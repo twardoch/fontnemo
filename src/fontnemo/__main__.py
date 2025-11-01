@@ -96,7 +96,11 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            print(f"Updated: {final_path}")
+            # Print final result in view format
+            result_handler = FontNameHandler(final_path)
+            final_family_name = result_handler.read_family_name()
+            result_handler.close()
+            print(f"{final_path}:{final_family_name}")
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -160,7 +164,11 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            print(f"Updated: {final_path}")
+            # Print final result in view format
+            result_handler = FontNameHandler(final_path)
+            final_family_name = result_handler.read_family_name()
+            result_handler.close()
+            print(f"{final_path}:{final_family_name}")
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -220,7 +228,11 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            print(f"Updated: {final_path}")
+            # Print final result in view format
+            result_handler = FontNameHandler(final_path)
+            final_family_name = result_handler.read_family_name()
+            result_handler.close()
+            print(f"{final_path}:{final_family_name}")
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -278,7 +290,11 @@ class FontNemoCLI:
             final_path = save_font_safely(handler, output_path)
             handler.close()
 
-            print(f"Updated: {final_path}")
+            # Print final result in view format
+            result_handler = FontNameHandler(final_path)
+            final_family_name = result_handler.read_family_name()
+            result_handler.close()
+            print(f"{final_path}:{final_family_name}")
 
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -300,39 +316,81 @@ class FontNemoCLI:
     def timestamp(
         self,
         input_path: str,
-        separator: str = " ",
+        separator: str = " tX",
+        replace_timestamp: bool = True,
         output_path: str = "0",
     ) -> None:
         """Append timestamp suffix to font family name.
 
         Args:
             input_path: Input font file
-            separator: Separator before timestamp (default: space)
+            separator: Separator before timestamp (default: " tX")
+            replace_timestamp: Remove old timestamp before adding new (default: True)
             output_path: Output mode (see 'new' command)
 
         Examples:
             fontnemo timestamp font.ttf
             fontnemo t font.ttf --separator="-"
+            fontnemo t font.ttf --replace_timestamp=False
         """
-        timestamp = make_timestamp()
-        suffix_str = separator + timestamp
+        try:
+            handler = FontNameHandler(input_path)
 
-        return self.suffix(
-            input_path=input_path,
-            suffix=suffix_str,
-            output_path=output_path,
-        )
+            # Read current names
+            family_name = handler.read_family_name()
+            family_slug = handler.read_family_slug()
+
+            # Remove old timestamp if requested and using default separator
+            if replace_timestamp and separator == " tX":
+                # Remove " tX" and everything after from family name
+                if " tX" in family_name:
+                    family_name = family_name.split(" tX")[0]
+
+                # Remove "tX" and everything after from family slug
+                if "tX" in family_slug:
+                    family_slug = family_slug.split("tX")[0]
+
+            # Generate new timestamp
+            timestamp = make_timestamp()
+            suffix_str = separator + timestamp
+
+            # Add timestamp suffix
+            new_family_name = family_name + suffix_str
+            new_family_slug = family_slug + make_slug(suffix_str)
+
+            logger.info(f"family_name: {family_name!r} → {new_family_name!r}")
+            logger.info(f"family_slug: {family_slug!r} → {new_family_slug!r}")
+
+            # Write changes
+            handler.write_family_name(new_family_name)
+            handler.write_family_slug(new_family_slug)
+
+            # Save
+            final_path = save_font_safely(handler, output_path)
+            handler.close()
+
+            # Print final result in view format
+            result_handler = FontNameHandler(final_path)
+            final_family_name = result_handler.read_family_name()
+            result_handler.close()
+            print(f"{final_path}:{final_family_name}")
+
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            sys.exit(1)
 
     def t(
         self,
         input_path: str,
-        separator: str = " ",
+        separator: str = " tX",
+        replace_timestamp: bool = True,
         output_path: str = "0",
     ) -> None:
         """Alias for timestamp command."""
         return self.timestamp(
             input_path=input_path,
             separator=separator,
+            replace_timestamp=replace_timestamp,
             output_path=output_path,
         )
 

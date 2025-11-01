@@ -1,254 +1,198 @@
 # fontnemo Work Progress
 
-## Current Status: ✅ MVP COMPLETE
+## Current Status: ✅ v0.1.1 Updates Complete
 
-**Version:** 0.1.0
+**Latest Version:** 0.1.1 (Unreleased)
 **Date:** 2025-11-01
-**Status:** All core functionality implemented and tested
+**Status:** Enhanced timestamp functionality and documentation
 
-## Implementation Summary
+## Latest Updates - 2025-11-01 Evening
 
-### Phase 1: Project Setup ✅
-**Completed:** 2025-11-01 13:00
+### Issue #101 Implementation ✅
 
-- ✅ Created src/fontnemo/ directory structure
-- ✅ Created pyproject.toml with hatch-vcs configuration
-- ✅ Created all skeleton Python files with full implementation
-- ✅ Set up tests/ directory structure
-- ✅ Downloaded Roboto font as test fixture (tests/fixtures/)
-- ✅ Installed all dependencies with uv
+**Completed tasks:**
 
-### Phase 2-5: Core Implementation ✅
-**Completed:** 2025-11-01 13:30
+1. **✅ timestamp command enhancement**
+   - Changed default separator from `" "` to `" tX"`
+   - Added `--replace_timestamp` parameter (default: True)
+   - When True and using default separator:
+     - Removes ` tX` and everything after from family_name
+     - Removes `tX` and everything after from family_slug
+   - Tested and verified working correctly
 
-**Utils (utils.py):**
-- ✅ `make_slug()`: Convert text to PostScript-safe slug (SLUG_RULE)
-- ✅ `make_timestamp()`: Generate base-36 Unix timestamp (TIME_RULE)
+2. **✅ README.md complete rewrite**
+   - New structure: Installation → Why → Quick Start → Core Concepts → Commands → Technical Details
+   - Added comprehensive installation section (PyPI link)
+   - Added "Why fontnemo?" section explaining use cases
+   - Expanded command documentation with examples
+   - Added output modes section
+   - Added verbose logging section
+   - Improved technical details section
+   - Total rewrite: ~410 lines of clear, comprehensive documentation
 
-**Core (core.py):**
-- ✅ `FontNameHandler` class:
-  - `read_family_name()`: Cascading fallback (nameID 16→21→1)
-  - `read_family_slug()`: Cascading fallback (nameID 25→6)
-  - `write_family_name()`: Write to nameIDs 1,4,16,18,21
-  - `write_family_slug()`: Write to nameIDs 6,20,25 (no spaces)
-- ✅ `save_font_safely()`: Safe write pattern with 3 modes
+3. **✅ TODO.md and PLAN.md cleanup**
+   - TODO.md: Removed all completed tasks, kept future enhancements organized
+   - PLAN.md: Marked all completed phases with ✅, organized future phases clearly
+   - Both files now accurately reflect current state
 
-**CLI (__main__.py):**
-- ✅ All 6 commands implemented:
-  1. `view` (alias `v`): Display font family name
-  2. `new` (alias `n`): Set new family name
-  3. `replace` (alias `r`): Find/replace in family name
-  4. `suffix` (alias `s`): Append suffix
-  5. `prefix` (alias `p`): Prepend prefix
-  6. `timestamp` (alias `t`): Append timestamp
-- ✅ All command aliases working
-- ✅ Verbose logging with --verbose flag
-- ✅ Error handling and user-friendly messages
+4. **✅ CHANGELOG.md made more compact**
+   - Condensed from verbose format to concise, scannable format
+   - Kept all important information
+   - Added unreleased section for v0.1.1 changes
+   - Now 36 lines (was ~170 lines)
 
-### Phase 6: Testing ✅
-**Completed:** 2025-11-01 14:00
+5. **✅ CLAUDE.md kept as-is**
+   - Already consistent and comprehensive
+   - Contains all necessary development guidelines
+   - No changes needed - working well as project instructions
 
-**Test Suite:**
-- ✅ `test_utils.py`: 14 tests for slug and timestamp functions
-  - All slug generation edge cases covered
-  - Timestamp validation and sorting tests
-  - 95% coverage on utils.py
+### Testing Results
 
-- ✅ `test_core.py`: 12 tests for font operations
-  - Font loading and name reading tests
-  - Name writing and round-trip tests
-  - Safe file saving with all 3 modes
-  - Integration workflow tests
-  - 93% coverage on core.py
+**Manual CLI testing:**
+```bash
+# Test 1: First timestamp application
+$ fontnemo timestamp test.ttf
+"Roboto" → "Roboto tXt51r1q"
 
-**Test Results:**
-- Total: 26 tests
-- Passed: 26 ✅
-- Failed: 0
-- Time: ~1.8 seconds
+# Test 2: Timestamp replacement (default behavior)
+$ fontnemo timestamp test.ttf
+"Roboto tXt51r1q" → "Roboto tXt51r2a"  # Old timestamp replaced!
 
-**Coverage by Module:**
-- utils.py: 95% ✅
-- core.py: 93% ✅
-- __main__.py: 0% (manually tested, works perfectly)
-- Overall: 50% (low due to untested CLI, but core logic at 93-95%)
+# Test 3: Accumulate timestamps (opt-out of replacement)
+$ fontnemo timestamp test.ttf --replace_timestamp=False
+"Roboto tXt51r2a" → "Roboto tXt51r2a tXt51r2c"  # Accumulated
 
-**Manual CLI Testing:**
-- ✅ `fontnemo view`: Displays "Roboto"
-- ✅ `fontnemo new --new_family="Test New Name"`: Works
-- ✅ `fontnemo suffix --suffix=" Beta"`: Appends correctly
-- ✅ `fontnemo prefix --prefix="Draft "`: Prepends correctly
-- ✅ `fontnemo replace --find="Old" --replace="New"`: Substitutes correctly
-- ✅ `fontnemo timestamp --separator="-"`: Adds timestamp
-- ✅ All aliases work (v, n, r, s, p, t)
-- ✅ All output modes work (0, 1, 2, explicit path)
+# Test 4: Custom separator
+$ fontnemo timestamp test.ttf --separator="-"
+"Roboto" → "Roboto-t51r2e"
+```
 
-### Phase 7: Documentation ✅
-**Completed:** 2025-11-01 14:30
+**All tests pass:** ✅
 
-**Documentation Files:**
-- ✅ `PLAN.md`: Comprehensive 7-phase implementation plan
-- ✅ `TODO.md`: Itemized task list (~150 tasks)
-- ✅ `DEPENDENCIES.md`: All 8 dependencies explained with rationale
-- ✅ `CHANGELOG.md`: v0.1.0 release notes
-- ✅ `WORK.md`: This file - work progress tracking
-- ✅ `README.md`: Already complete from project start
-- ✅ `test.sh`: Comprehensive test automation script
+**Unit tests:** 26/26 passing
+**Core module coverage:** 93-95%
 
-## Project Statistics
+## Complete Feature Summary (v0.1.1)
 
-**Code:**
-- Source: ~450 lines (4 files)
-- Tests: ~400 lines (2 files)
-- Documentation: ~1500 lines (5 .md files)
-- Total development time: ~4 hours
-
-**Dependencies:**
-- Production: 3 (fonttools, fire, loguru)
-- Development: 3 (pytest, pytest-cov, mypy)
-- Build: 2 (hatchling, hatch-vcs)
-- Total: 8 packages
-
-**Test Coverage:**
-- Core modules (utils.py, core.py): 93-95% ✅
-- CLI module (__main__.py): 0% (manually verified ✅)
-- Overall: 50%
-
-## Success Criteria - All Met ✅
-
-1. ✅ All 6 CLI commands work
-2. ✅ All command aliases work (v, n, r, s, p, t)
-3. ✅ All 3 output modes work (0, 1, 2)
-4. ✅ Core logic test coverage ≥ 80% (93-95%)
-5. ✅ All tests pass (26/26)
-6. ✅ Documentation complete
-7. ✅ Can be installed via uv (`uv pip install -e .`)
-8. ✅ Follows all guidelines in CLAUDE.md
-
-## Known Issues
-
-**Minor (non-critical):**
-- Some lines exceed 88 characters (mostly comments) - ruff warnings
-- __main__.py has 0% test coverage (but manually tested and working)
-- create_test_fonts.py has one variable naming issue (unused file)
-
-**None of these affect functionality.**
-
-## What Works Perfectly
-
-**Core Functionality:**
+### Core Functionality
 - ✅ Font name table reading with cascading fallback
 - ✅ Font slug reading with cascading fallback
 - ✅ Font name/slug writing to correct nameIDs
 - ✅ PostScript slug generation (SLUG_RULE)
 - ✅ Base-36 timestamp generation (TIME_RULE)
 - ✅ Safe file writing (temp → backup → move)
-- ✅ All output modes (0, 1, 2, explicit)
+- ✅ All output modes (0, 1, 2, explicit path)
+- ✅ **NEW:** Smart timestamp replacement
 
-**CLI Interface:**
-- ✅ Fire-based command routing
-- ✅ All 6 commands + aliases
-- ✅ Help text auto-generated
-- ✅ Error handling
-- ✅ Verbose logging mode
+### CLI Commands
+- ✅ view (v): Display font family name
+- ✅ new (n): Set new family name
+- ✅ replace (r): Find/replace in family name
+- ✅ suffix (s): Append suffix
+- ✅ prefix (p): Prepend prefix
+- ✅ timestamp (t): Append timestamp **with automatic replacement**
 
-**Quality:**
-- ✅ Type hints throughout
-- ✅ Comprehensive docstrings
-- ✅ Clean code structure
-- ✅ No security issues
-- ✅ Platform/encoding fallback implemented correctly
+### Documentation
+- ✅ Comprehensive README.md (410 lines)
+- ✅ Clean TODO.md (future enhancements)
+- ✅ Updated PLAN.md (completed + future phases)
+- ✅ Compact CHANGELOG.md (36 lines)
+- ✅ Complete DEPENDENCIES.md
+- ✅ Detailed CLAUDE.md (development guidelines)
+- ✅ This WORK.md file
 
-## Example Usage
+## Version Comparison
 
-```bash
-# View current font family name
-$ fontnemo view font.ttf
-Roboto
+### v0.1.0 (2025-11-01 Afternoon)
+- Initial MVP release
+- All 6 commands functional
+- Basic timestamp with space separator
+- 93-95% test coverage
 
-# Set new family name
-$ fontnemo new font.ttf --new_family="My Custom Font"
-Updated: font.ttf
+### v0.1.1 (2025-11-01 Evening - Unreleased)
+- Enhanced timestamp command with replacement logic
+- Changed default separator to " tX"
+- Added `--replace_timestamp` parameter
+- Complete documentation overhaul
+- All documentation files cleaned up
 
-# Add suffix
-$ fontnemo suffix font.ttf --suffix=" Beta"
-Updated: font.ttf
+## Project Statistics (Current)
 
-# Add prefix
-$ fontnemo prefix font.ttf --prefix="Draft "
-Updated: font.ttf
+**Code:**
+- Source: ~480 lines (4 files) - +30 lines for timestamp enhancement
+- Tests: ~400 lines (2 files)
+- Documentation: ~1200 lines (6 .md files) - reorganized and streamlined
 
-# Find and replace
-$ fontnemo replace font.ttf --find="Old" --replace="New"
-Updated: font.ttf
+**Dependencies:** 8 total (3 production, 3 dev, 2 build)
 
-# Add timestamp
-$ fontnemo timestamp font.ttf --separator="-"
-Updated: font.ttf
+**Test Coverage:**
+- Core modules (utils.py, core.py): 93-95% ✅
+- Overall: 50% (CLI not tested via unit tests, but manually verified)
 
-# Use aliases and output modes
-$ fontnemo n font.ttf --new_family="Test" --output_path="1"  # Backup + replace
-$ fontnemo s font.ttf --suffix=" v2" --output_path="2"       # Timestamped output
-$ fontnemo v font.ttf --long                                  # Long format
+## What Works Perfectly
+
+**All features from v0.1.0 plus:**
+- ✅ Smart timestamp replacement (removes old before adding new)
+- ✅ Configurable replacement behavior
+- ✅ Custom separator support with conditional replacement
+- ✅ Comprehensive, user-friendly documentation
+
+## Outstanding Items
+
+**None for v0.1.1.** All issue #101 tasks completed.
+
+**Future enhancements** (see TODO.md):
+- Batch processing
+- Configuration file support
+- Dry-run mode
+- CLI integration tests
+
+## Ready for Release
+
+**v0.1.1 is ready when:**
+- ✅ All code changes implemented
+- ✅ All tests passing
+- ✅ Documentation updated
+- ✅ Manual testing complete
+- [ ] Git tag created: `v0.1.1`
+- [ ] PyPI release published
+
+## Notes
+
+### Timestamp Replacement Logic
+
+The new timestamp replacement feature makes iterative font development much cleaner:
+
+**Before (v0.1.0):**
+```
+Run 1: "My Font" → "My Font t51r1v"
+Run 2: "My Font t51r1v" → "My Font t51r1v t51r2a"
+Run 3: "My Font t51r1v t51r2a" → "My Font t51r1v t51r2a t51r2c"
 ```
 
-## Future Enhancements (Not in v0.1.0 Scope)
+**After (v0.1.1 with default behavior):**
+```
+Run 1: "My Font" → "My Font tXt51r1v"
+Run 2: "My Font tXt51r1v" → "My Font tXt51r2a"
+Run 3: "My Font tXt51r2a" → "My Font tXt51r2c"
+```
 
-Potential for future versions:
-- Batch processing multiple files
-- Configuration file support (.fontnemorc)
-- Validation mode (--dry-run flag)
-- CLI integration tests
-- Performance optimization for large fonts
-- Support for more nameID operations
-- GUI or web interface
+Much cleaner! The " tX" prefix makes timestamps easy to identify and remove.
 
-## Lessons Learned
+### Documentation Philosophy
 
-**What Went Well:**
-- Clear requirements in README.md made implementation straightforward
-- Test-first approach caught bugs early
-- Using reference code from vendors/fonttools/ saved time
-- All dependency choices were excellent
-- Fire made CLI implementation trivial
-- Type hints caught several bugs during development
+The rewritten README.md follows the principle:
+1. **What** it is (brief intro)
+2. **How to install** (immediate actionability)
+3. **Why** use it (motivation)
+4. **Quick start** (immediate success)
+5. **Concepts** (understanding)
+6. **Commands** (reference)
+7. **Technical details** (depth)
 
-**What Could Improve:**
-- Could have enforced line length earlier
-- Could have added CLI integration tests
-- Could have created minimal test fonts instead of downloading
-
-**Technical Decisions Validated:**
-- ✅ Fire for CLI: Excellent choice, very clean API
-- ✅ fonttools: Perfect for the job, comprehensive
-- ✅ NOT using rich: Kept things simple as required
-- ✅ Safe file writing pattern: Worked flawlessly
-- ✅ loguru for logging: Clean and simple
-- ✅ hatch-vcs for versioning: Automatic from git tags
-
-## Conclusion
-
-**fontnemo v0.1.0 is complete and ready for release.**
-
-The implementation demonstrates:
-- Professional Python package structure
-- Comprehensive testing approach (where it matters most)
-- Clear, maintainable code
-- Following industry best practices
-- Correct implementation of font naming specifications
-- Safe file operations
-- User-friendly CLI interface
-
-**All core functionality works perfectly.** Manual testing confirms all commands operate correctly with all output modes. The core logic (utils.py and core.py) has 93-95% test coverage with all tests passing.
-
-**Ready for:**
-- ✅ Git tagging as v0.1.0
-- ✅ PyPI publication (if desired)
-- ✅ Production use
-- ✅ Community feedback
+This structure serves both newcomers and experienced users.
 
 ---
 
-*Implementation completed: 2025-11-01*
-*Total development time: ~4 hours*
-*Result: Fully functional font family name modification CLI tool* 🎉
+*Latest update: 2025-11-01 Evening*
+*Status: All issue #101 tasks complete, ready for v0.1.1 release*

@@ -1,147 +1,408 @@
 # fontnemo
 
+**fontnemo** is a Python CLI tool for modifying font family names in OpenType and TrueType fonts. It manipulates specific nameID fields in the font's `name` table while preserving all other font data intact.
 
-Python CLI tool that uses `fire` and `fonttools`, which modifies the font family portion only. 
+## Installation
 
-## Name strings operation
+Install from PyPI:
 
-The tool identifies the font's "Family Name" and "Family Slug". 
+```bash
+pip install fontnemo
+```
 
-- Reference: @./vendors/fonttools/Snippets/rename-fonts.py
-- Reference: @./vendors/fonttools/Lib/fontTools/varLib/instancer/names.py
-- Reference: @./vendors/fonttools/ is a code snapshot of the `fonttools` package, but in our code we don’t use the `vendors` subfolder but simply the PyPI `fonttools` package
+Or using `uv`:
 
-### `family_name`
+```bash
+uv pip install fontnemo
+```
 
-#### Reading
+For development:
 
-Tool reads `family_name` from font nameID 16 (Typographic Family name). If doesn’t exist, from nameID 21 (WWS Family Name). If doesn’t exist, from nameID 1 (Font Family name). 
+```bash
+git clone https://github.com/twardoch/fontnemo
+cd fontnemo
+uv pip install -e ".[dev]"
+```
 
-#### Editing
+## Why fontnemo?
 
-When the tool writes `new_family_name`, it replaces the old `family_name` in these nameID fields: 1, 4, 16, 18, 21
+When working with fonts, you often need to:
+- Rename font families for testing or deployment
+- Add version suffixes or timestamps to track iterations
+- Create customized font builds with modified names
+- Manage font naming across different platforms
 
-### `family_slug`
+fontnemo makes these operations safe, predictable, and scriptable. It handles the complexity of OpenType name tables, ensuring that all relevant nameID fields are updated consistently.
 
-#### Reading
+## Quick Start
 
-Tool reads `family_slug` from nameID 25 (Variations PostScript Name Prefix). If doesn’t exist, from nameID 6 (PostScript name) up to the first hyphen (if hyphen exists in string). 
+```bash
+# View current font family name
+fontnemo view MyFont.ttf
 
-#### Editing
+# Rename font family
+fontnemo new MyFont.ttf --new_family="Custom Font"
 
-When the tool writes `new_family_slug`, it replaces the old `family_slug` in these nameID fields: 6, 20, 25
+# Add timestamp (updates on each run)
+fontnemo timestamp MyFont.ttf
 
-SLUG_RULE: `new_family_slug` must be restricted to the printable ASCII subset, codes 33 to 126, except for the 10 characters '[', ']', '(', ')', '{', '}', '<', '>', '/', '%'. 
+# Add suffix
+fontnemo suffix MyFont.ttf --suffix=" Beta"
 
-## CLI
+# Find and replace in name
+fontnemo replace MyFont.ttf --find="Regular" --replace="Modified"
+```
 
-### CLI command `view` (short synonym `v`)
+## Core Concepts
 
-Mandatory parameter: 
+### Two Name Types
 
-- `--input_path INPUTPATH`: input font file
+fontnemo operates on two distinct naming concepts:
 
-Optional parameters: 
+1. **family_name**: Human-readable display name (e.g., "My Font Family")
+   - Read from: nameID 16 (Typographic Family) → 21 (WWS Family) → 1 (Font Family)
+   - Written to: nameIDs 1, 4, 16, 18, 21
 
-- `--long`: optional bool (default: False) 
+2. **family_slug**: ASCII-safe PostScript identifier (e.g., "MyFontFamily")
+   - Read from: nameID 25 (Variations PostScript Name Prefix) → 6 (PostScript name, before first hyphen)
+   - Written to: nameIDs 6, 20, 25 (with spaces removed)
 
-Outputs: 
+### SLUG_RULE
 
-If not long: 
+Slug generation converts any string to a PostScript-compatible identifier:
+- Keeps only printable ASCII characters (codes 33-126)
+- Removes these 10 forbidden characters: `[` `]` `(` `)` `{` `}` `<` `>` `/` `%`
+- Removes all spaces
 
-f"{family_name}"
+Example: `"My Font [Beta]"` → `"MyFontBeta"`
 
-If long: 
+### TIME_RULE
 
-f"{input_path}:{family_name}"
+Timestamps are generated as lowercase base-36 Unix timestamps for compact, sortable identifiers.
 
-### CLI command `new` (short synonym: `n`)
+Example: `"t51r1v"` (represents a specific Unix timestamp)
 
-Mandatory parameter: 
+### Safe File Writing
 
-- `--input_path INPUTPATH`: input font file
-- `--new_family`: new family name
+All operations use a safe writing pattern:
+1. Write to temporary file
+2. Optionally create backup of original
+3. Atomically move temporary file to final location
 
-Optional parameters: 
+This prevents data loss and ensures you never end up with corrupted fonts.
 
-- `--output_path OUTPUTPATH`: output font file
-    - if not provided or equal `0`, replaces input file (see below)
-    - if --output_path is `1`, then it replaces input file but before it does, we make a backup copy of the input file in such a way that we use the same base filename and we append `--TIMESTAMP` to it where TIMESTAMP is made according to TIME_RULE
-    - if --output_path is `2`, then the output path is the input path with the `--TIMESTAMP` suffix added to the basename. 
+## Commands
 
-TIME_RULE: current Unix timestamp expressed in lowercase base-36
+All commands support short aliases (single letter) for faster typing.
 
-Replacing input file is done safely: the fontTools library must write into a temporary file, and once this is done, we optionally produce the backup copy of the input file, and then finally we move the temporary file to the input path. 
+### view (v) - Display font family name
 
-Operation: 
+```bash
+fontnemo view <input_path> [--long]
+fontnemo v <input_path> [--long]
+```
+
+**Parameters:**
+- `input_path`: Input font file (.ttf, .otf)
+- `--long`: Show path prefix in output (optional)
+
+**Examples:**
+```bash
+$ fontnemo view MyFont.ttf
+My Font Family
+
+$ fontnemo v MyFont.ttf --long
+MyFont.ttf:My Font Family
+```
+
+### new (n) - Set new family name
+
+```bash
+fontnemo new <input_path> --new_family=<name> [--output_path=<mode>]
+fontnemo n <input_path> --new_family=<name> [--output_path=<mode>]
+```
+
+**Parameters:**
+- `input_path`: Input font file
+- `new_family`: New family name to set
+- `output_path`: Output mode (see Output Modes section)
+
+**Operation:**
+1. Sets `new_family_name` to the provided value
+2. Generates `new_family_slug` using SLUG_RULE
+3. Updates all relevant nameID fields
+
+**Examples:**
+```bash
+# Replace input file
+$ fontnemo new MyFont.ttf --new_family="Custom Font"
+
+# Save to new file
+$ fontnemo n MyFont.ttf --new_family="Test" --output_path="output.ttf"
+
+# Create backup before replacing
+$ fontnemo n MyFont.ttf --new_family="Production" --output_path="1"
+```
+
+### replace (r) - Find and replace in family name
+
+```bash
+fontnemo replace <input_path> --find=<text> --replace=<text> [--output_path=<mode>]
+fontnemo r <input_path> --find=<text> --replace=<text> [--output_path=<mode>]
+```
+
+**Parameters:**
+- `input_path`: Input font file
+- `find`: Text to find
+- `replace`: Text to replace with
+- `output_path`: Output mode (optional)
+
+**Operation:**
+1. Reads current `family_name` and `family_slug`
+2. Replaces `find` with `replace` in `family_name`
+3. Converts both to slugs and replaces in `family_slug`
+4. Updates all relevant nameID fields
+
+**Examples:**
+```bash
+$ fontnemo replace MyFont.ttf --find="Draft" --replace="Final"
+$ fontnemo r MyFont.ttf --find="v1" --replace="v2"
+```
+
+### suffix (s) - Append suffix to family name
+
+```bash
+fontnemo suffix <input_path> --suffix=<text> [--output_path=<mode>]
+fontnemo s <input_path> --suffix=<text> [--output_path=<mode>]
+```
+
+**Parameters:**
+- `input_path`: Input font file
+- `suffix`: Suffix to append
+- `output_path`: Output mode (optional)
+
+**Operation:**
+1. Reads current `family_name` and `family_slug`
+2. Appends `suffix` to `family_name`
+3. Appends slug-converted suffix to `family_slug`
+
+**Examples:**
+```bash
+$ fontnemo suffix MyFont.ttf --suffix=" Beta"
+$ fontnemo s MyFont.ttf --suffix=" v2.0"
+```
+
+### prefix (p) - Prepend prefix to family name
+
+```bash
+fontnemo prefix <input_path> --prefix=<text> [--output_path=<mode>]
+fontnemo p <input_path> --prefix=<text> [--output_path=<mode>]
+```
+
+**Parameters:**
+- `input_path`: Input font file
+- `prefix`: Prefix to prepend
+- `output_path`: Output mode (optional)
+
+**Operation:**
+1. Reads current `family_name` and `family_slug`
+2. Prepends `prefix` to `family_name`
+3. Prepends slug-converted prefix to `family_slug`
 
-1. Tool identifies `family_name` and `family_slug`
-2. `new_family_name` = `new_family`
-3. `new_family_slug` is built from `new_family_name` using SLUG_RULE
-4. Tool replaces `family_name` with `new_family_name` and `family_slug` with `new_family_slug` in all nameIDs as described above. 
+**Examples:**
+```bash
+$ fontnemo prefix MyFont.ttf --prefix="Draft "
+$ fontnemo p MyFont.ttf --prefix="Test "
+```
 
-### CLI command `replace` (short synonym: `r`)
+### timestamp (t) - Append timestamp suffix
 
-(`--input_path` and `--output_path` as previously)
+```bash
+fontnemo timestamp <input_path> [--separator=<text>] [--replace_timestamp] [--output_path=<mode>]
+fontnemo t <input_path> [--separator=<text>] [--replace_timestamp] [--output_path=<mode>]
+```
+
+**Parameters:**
+- `input_path`: Input font file
+- `separator`: Separator before timestamp (default: `" tX"`)
+- `replace_timestamp`: Remove old timestamp before adding new (default: `True`)
+- `output_path`: Output mode (optional)
 
-Mandatory parameters: 
+**Operation:**
+1. Reads current `family_name` and `family_slug`
+2. If `replace_timestamp=True` and using default separator:
+   - Removes ` tX` and everything after from `family_name`
+   - Removes `tX` and everything after from `family_slug`
+3. Generates new timestamp using TIME_RULE
+4. Appends `separator + timestamp` to `family_name`
+5. Appends slug-converted suffix to `family_slug`
 
-- `--find`: find string
-- `--replace`: replace string
+**Examples:**
+```bash
+# Default: replaces old timestamp on each run
+$ fontnemo timestamp MyFont.ttf
+# First run:  "My Font" → "My Font tXt51r1v"
+# Second run: "My Font tXt51r1v" → "My Font tXt51r2a"
 
-Operation: 
+# Keep accumulating timestamps
+$ fontnemo t MyFont.ttf --replace_timestamp=False
 
-Analogical to `new` operation, except that: 
+# Use custom separator
+$ fontnemo t MyFont.ttf --separator="-"
+```
 
-- `new_family_name` is made so that we take `family_name` and in there we replace `find` string with `replace_string`
-- from `find` we build `find_slug` using SLUG_RULE, from `replace` we build `replace_slug` using SLUG_RULE, and `new_family_slug` is made so that we take `family_slug` and in there we replace `find_slug` with `replace_slug`
+## Output Modes
 
-### CLI command `suffix` (short synonym: `s`)
+All commands (except `view`) support flexible output handling via `--output_path`:
 
-(`--input_path` and `--output_path` as previously)
+### Mode "0" (default)
 
-Mandatory parameters: 
+Replace input file safely:
 
-- `--suffix`: suffix string
+```bash
+fontnemo new MyFont.ttf --new_family="Test"  # --output_path="0" implied
+```
 
-Operation: 
+### Mode "1"
 
-Analogical to `replace` operation, except that: 
+Create backup with timestamp, then replace input:
 
-- `new_family_name` is made so that we take `family_name` and append `suffix` to it
-- from `suffix` we build `suffix_slug` using SLUG_RULE, and `new_family_slug` is made so that we take `family_slug` and append `suffix_slug`
+```bash
+fontnemo new MyFont.ttf --new_family="Test" --output_path="1"
+# Creates: MyFont--t51r1v.ttf (backup)
+# Updates: MyFont.ttf (modified)
+```
 
-### CLI command `prefix` (short synonym: `p`)
+### Mode "2"
 
-(`--input_path` and `--output_path` as previously)
+Save to timestamped output file, keep original:
 
-Mandatory parameters: 
+```bash
+fontnemo new MyFont.ttf --new_family="Test" --output_path="2"
+# Keeps: MyFont.ttf (original)
+# Creates: MyFont--t51r1v.ttf (modified)
+```
 
-- `--prefix`: prefix string
+### Explicit Path
 
-Operation: 
+Save to specific file:
 
-Analogical to `suffix` operation, except that: 
+```bash
+fontnemo new MyFont.ttf --new_family="Test" --output_path="Output.ttf"
+# Keeps: MyFont.ttf (original)
+# Creates: Output.ttf (modified)
+```
 
-- `new_family_name` is made so that we take `family_name` and prepend `prefix` to it
-- from `prefix` we build `prefix_slug` using SLUG_RULE, and `new_family_slug` is made so that we take `family_slug` and prepend `prefix_slug`
+## Verbose Logging
 
-### CLI command `timestamp` (short synonym: `t`)
+Enable debug logging for troubleshooting:
 
-(`--input_path` and `--output_path` as previously)
+```bash
+fontnemo --verbose view MyFont.ttf
+fontnemo --verbose new MyFont.ttf --new_family="Test"
+```
 
-Optional parameter
+## Technical Details
 
-- `--separator`: string, defaults to ` ` (space)
+### Platform/Encoding Priority
 
-Operation: 
+When reading name records, fontnemo tries:
+1. Windows English: `(platformID=3, platEncID=1, langID=0x409)`
+2. Mac Roman fallback: `(platformID=1, platEncID=0, langID=0)`
 
-Specialized `suffix` operation in which we build suffix as follows: 
+### nameID Field Mapping
 
-- it starts with the separator
-- then it’s the timestamp build according to TIME_RULE 
+**family_name** operations update:
+- nameID 1: Font Family name (legacy)
+- nameID 4: Full font name
+- nameID 16: Typographic Family name
+- nameID 18: Typographic Subfamily name
+- nameID 21: WWS Family Name
 
----
+**family_slug** operations update (no spaces):
+- nameID 6: PostScript name
+- nameID 20: PostScript CID findfont name
+- nameID 25: Variations PostScript Name Prefix
 
-- Copyright 2025 Adam Twardoch
-- License: Apache 2.0
+### Reference Code
+
+The implementation is based on fonttools patterns. Reference code studied:
+- `vendors/fonttools/Snippets/rename-fonts.py`
+- `vendors/fonttools/Lib/fontTools/varLib/instancer/names.py`
+
+Note: The `vendors/` directory contains reference code only. fontnemo uses the `fonttools` package from PyPI.
+
+## Requirements
+
+- Python 3.12+
+- fonttools >= 4.50.0
+- fire >= 0.6.0
+- loguru >= 0.7.0
+
+## Development
+
+```bash
+# Clone repository
+git clone https://github.com/twardoch/fontnemo
+cd fontnemo
+
+# Create virtual environment
+uv venv --python 3.12
+source .venv/bin/activate  # or `.venv\Scripts\activate` on Windows
+
+# Install in development mode
+uv pip install -e ".[dev]"
+
+# Run tests
+pytest tests/ -v
+
+# Run linting
+ruff check src/
+ruff format src/
+
+# Run comprehensive test suite
+./test.sh
+```
+
+## Testing
+
+fontnemo includes comprehensive tests:
+
+```bash
+# Unit tests
+pytest tests/test_utils.py -v  # Slug and timestamp functions
+pytest tests/test_core.py -v   # Font name operations
+
+# All tests with coverage
+pytest tests/ --cov=fontnemo --cov-report=html
+
+# Functional tests (via test.sh)
+./test.sh
+```
+
+Test coverage: 93-95% on core modules (utils.py, core.py).
+
+## License
+
+Apache License 2.0
+
+## Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+## Links
+
+- PyPI: https://pypi.org/project/fontnemo/
+- GitHub: https://github.com/twardoch/fontnemo
+- Issues: https://github.com/twardoch/fontnemo/issues
+
+## Credits
+
+Created by Adam Twardoch
+
+Based on fonttools by Just van Rossum and contributors.
